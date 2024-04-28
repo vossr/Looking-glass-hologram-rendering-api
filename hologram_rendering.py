@@ -1,6 +1,7 @@
 from OpenGL.GL import *
 import bridge_api
 import gl_utils
+import atexit
 import glfw
 
 device = bridge_api.get_device(0)
@@ -9,34 +10,14 @@ quilt_image_count = device.quilt.tiling_dimension_x * device.quilt.tiling_dimens
 # vert = device.shader.vertex_shader
 # frag = device.shader.fragment_shader
 
-vertex_shader_code = """
-#version 330 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec2 aTexCoord;
-
-out vec2 TexCoord;
-
-void main() {
-    gl_Position = vec4(aPos, 1.0);
-    TexCoord = aTexCoord;
-}
-"""
-
-fragment_shader_code = """
-#version 330 core
-out vec4 FragColor;
-in vec2 TexCoord;
-
-uniform sampler2D ourTexture;
-
-void main() {
-    vec2 flippedTexCoord = vec2(TexCoord.x, 1.0 - TexCoord.y);
-    FragColor = texture(ourTexture, flippedTexCoord);
-}
-"""
-
 if not glfw.init():
     raise Exception("Failed to initialize GLFW")
+
+def terminate():
+    glfw.terminate()
+
+atexit.register(terminate)
+
 window_title = 'rendering_python_api'
 
 def create_window():
@@ -52,19 +33,10 @@ window = create_window()
 glfw.make_context_current(window)
 
 VAO = gl_utils.setup_vertex_data()
-shader_program = gl_utils.create_shader_program(vertex_shader_code, fragment_shader_code)
+shader_program = gl_utils.create_shader_program(open('quad_texture_vert.glsl', 'r').read(), open('quad_texture_frag.glsl', 'r').read())
 
 
 
-# import atexit
-
-# def goodbye():
-#     print("Goodbye, see you later!")
-
-# # Register the function to be called on exit
-# atexit.register(goodbye)
-
-#     glfw.terminate()
 
 
 def render_frame(texture_id):
