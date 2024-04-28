@@ -14,9 +14,6 @@ cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREE
 cv2.moveWindow(window_name, x_position, y_position)
 cv2.resizeWindow(window_name, width, height)
 
-def get_img_count():
-    pass
-
 def _generate_lenticular_projection(quilt):
     lent = 0
     return lent
