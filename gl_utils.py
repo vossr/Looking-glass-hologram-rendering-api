@@ -56,17 +56,17 @@ def load_texture_from_cv_image(cv_image):
     height, width, channels = image.shape
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image)
 
-    glGenerateMipmap(GL_TEXTURE_2D)
+    # glGenerateMipmap(GL_TEXTURE_2D)
     glBindTexture(GL_TEXTURE_2D, 0)
     return textureID
 
 def setup_vertex_data():
     vertices = np.array([
         # Positions       # Texture Coords
-        -0.5, -0.5, 0.0,  0.0, 0.0,  # Bottom left
-         0.5, -0.5, 0.0,  1.0, 0.0,  # Bottom right
-        -0.5,  0.5, 0.0,  0.0, 1.0,  # Top left
-         0.5,  0.5, 0.0,  1.0, 1.0   # Top right
+        -1.0, -1.0, 0.0,  0.0, 0.0,  # Bottom left
+         1.0, -1.0, 0.0,  1.0, 0.0,  # Bottom right
+        -1.0,  1.0, 0.0,  0.0, 1.0,  # Top left
+         1.0,  1.0, 0.0,  1.0, 1.0   # Top right
     ], dtype=np.float32)
 
     VAO = glGenVertexArrays(1)
