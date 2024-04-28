@@ -1,3 +1,4 @@
 [submodule "looking-glass-bridge-python-api"]
 	path = looking-glass-bridge-python-api
 	url = https://github.com/rpehkone/looking-glass-bridge-python-api
+	branch = master
