@@ -62,11 +62,11 @@ def load_texture_from_cv_image(cv_image):
 
 def setup_vertex_data():
     vertices = np.array([
-        # Positions       # Texture Coords
-        -1.0, -1.0, 0.0,  0.0, 0.0,  # Bottom left
-         1.0, -1.0, 0.0,  1.0, 0.0,  # Bottom right
-        -1.0,  1.0, 0.0,  0.0, 1.0,  # Top left
-         1.0,  1.0, 0.0,  1.0, 1.0   # Top right
+        # Positions   # Texture Coords
+        -1.0, -1.0,   0.0, 0.0,  # Bottom left
+         1.0, -1.0,   1.0, 0.0,  # Bottom right
+        -1.0,  1.0,   0.0, 1.0,  # Top left
+         1.0,  1.0,   1.0, 1.0   # Top right
     ], dtype=np.float32)
 
     VAO = glGenVertexArrays(1)
@@ -76,9 +76,9 @@ def setup_vertex_data():
     glBindBuffer(GL_ARRAY_BUFFER, VBO)
     glBufferData(GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW)
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * vertices.itemsize, None)
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * vertices.itemsize, None)
     glEnableVertexAttribArray(0)
 
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * vertices.itemsize, ctypes.c_void_p(3 * vertices.itemsize))
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * vertices.itemsize, ctypes.c_void_p(2 * vertices.itemsize))
     glEnableVertexAttribArray(1)
     return VAO

@@ -7,8 +7,8 @@ import glfw
 device = bridge_api.get_device(0)
 quilt_image_count = device.quilt.tiling_dimension_x * device.quilt.tiling_dimension_y
 
-# vert = device.shader.vertex_shader
-# frag = device.shader.fragment_shader
+# vert = "#version 330 core\n" + device.shader.vertex_shader
+# frag = "#version 330 core\n" + device.shader.fragment_shader
 
 if not glfw.init():
     raise Exception("Failed to initialize GLFW")
@@ -33,7 +33,8 @@ window = create_window()
 glfw.make_context_current(window)
 
 VAO = gl_utils.setup_vertex_data()
-shader_program = gl_utils.create_shader_program(open('quad_texture_vert.glsl', 'r').read(), open('quad_texture_frag.glsl', 'r').read())
+quad_shader = gl_utils.create_shader_program(open('quad_texture_vert.glsl', 'r').read(), open('quad_texture_frag.glsl', 'r').read())
+# lenticular_shader = gl_utils.create_shader_program(open('look_vert.glsl', 'r').read(), open('look_frag.glsl', 'r').read())
 
 
 
@@ -42,7 +43,7 @@ shader_program = gl_utils.create_shader_program(open('quad_texture_vert.glsl', '
 def render_frame(texture_id):
     glClear(GL_COLOR_BUFFER_BIT)
 
-    glUseProgram(shader_program)
+    glUseProgram(quad_shader)
     glBindTexture(GL_TEXTURE_2D, texture_id)
     glBindVertexArray(VAO)
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
