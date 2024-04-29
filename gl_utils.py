@@ -60,7 +60,7 @@ def load_texture_from_cv_image(cv_image):
     glBindTexture(GL_TEXTURE_2D, 0)
     return textureID
 
-def setup_vertex_data():
+def setup_quad_vertices():
     vertices = np.array([
         # Positions   # Texture Coords
         -1.0, -1.0,   0.0, 0.0,  # Bottom left
@@ -81,4 +81,23 @@ def setup_vertex_data():
 
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * vertices.itemsize, ctypes.c_void_p(2 * vertices.itemsize))
     glEnableVertexAttribArray(1)
+    return VAO
+
+def setup_quilt_vertices():
+    vertices = np.array([
+        -1.0, -1.0,  # Bottom left
+         1.0, -1.0,  # Bottom right
+        -1.0,  1.0,  # Top left
+         1.0,  1.0   # Top right
+    ], dtype=np.float32)
+
+    VAO = glGenVertexArrays(1)
+    glBindVertexArray(VAO)
+
+    VBO = glGenBuffers(1)
+    glBindBuffer(GL_ARRAY_BUFFER, VBO)
+    glBufferData(GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW)
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * vertices.itemsize, None)
+    glEnableVertexAttribArray(0)
     return VAO
