@@ -6,6 +6,10 @@ import glfw
 import cv2
 
 device = bridge_api.get_device(0)
+if device.info.bridge_core_version != "0.1.1":
+    print("Warning: Untested bridge version")
+if device.info.device_type != "portrait":
+    print("Warning: Untested device")
 
 if not glfw.init():
     raise Exception("Failed to initialize GLFW")
@@ -150,23 +154,32 @@ def _generate_quilt_from_rgbd(rgb_depth):
 
 
 def show_image(lent):
-    texture_id = gl_utils.load_texture_from_cv_image(lent)
-    render_pass_quad(texture_id)
-    glDeleteTextures(1, [texture_id])
+    try:
+        texture_id = gl_utils.load_texture_from_cv_image(lent)
+        render_pass_quad(texture_id)
+        glDeleteTextures(1, [texture_id])
+    except KeyboardInterrupt:
+        exit(0)
 
 def show_quilt(quilt):
-    # Vertically flip the image
-    quilt = cv2.flip(quilt, 0)
+    try:
+        # Vertically flip the image
+        quilt = cv2.flip(quilt, 0)
 
-    texture_id = gl_utils.load_texture_from_cv_image(quilt)
-    render_pass_quilt(texture_id)
-    # render_pass_quilt_old_webgl_shader(texture_id)
-    glDeleteTextures(1, [texture_id])
-    # lent = _generate_lenticular_projection(quilt)
-    # show_lenticular_projection(lent)
-    # show_lenticular_projection
+        texture_id = gl_utils.load_texture_from_cv_image(quilt)
+        render_pass_quilt(texture_id)
+        # render_pass_quilt_old_webgl_shader(texture_id)
+        glDeleteTextures(1, [texture_id])
+        # lent = _generate_lenticular_projection(quilt)
+        # show_lenticular_projection(lent)
+        # show_lenticular_projection
+    except KeyboardInterrupt:
+        exit(0)
 
 def show_rgb_depth(rgb_depth):
-    # quilt = _generate_quilt_from_rgbd(rgb_depth)
-    # show_quilt(quilt)
+    # try:
+    #     quilt = _generate_quilt_from_rgbd(rgb_depth)
+    #     show_quilt(quilt)
+    # except KeyboardInterrupt:
+    #     exit(0)
     pass
