@@ -42,6 +42,24 @@ def create_shader_program(vertex_source, fragment_source):
 
     return shader_program
 
+def create_framebuffer(texture_id):
+    fbo_id = glGenFramebuffers(1)
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo_id)
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_id, 0)
+    if glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE:
+        raise RuntimeError("Framebuffer is not complete")
+    glBindFramebuffer(GL_FRAMEBUFFER, 0)
+    return fbo_id
+
+def create_texture(width, height):
+    texture_id = glGenTextures(1)
+    glBindTexture(GL_TEXTURE_2D, texture_id)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, None)
+    glBindTexture(GL_TEXTURE_2D, 0)
+    return texture_id
+
 def load_texture_from_cv_image(cv_image):
     image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
 

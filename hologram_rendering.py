@@ -81,7 +81,7 @@ def _render_pass_quilt_old_webgl_shader(texture_id):
     glfw.poll_events()
 
 
-def _render_pass_quilt(texture_id):
+def _render_pass_quilt(texture_id, flip=False):
     glClear(GL_COLOR_BUFFER_BIT)
     glUseProgram(quilt_shader)
 
@@ -112,8 +112,12 @@ def _render_pass_quilt(texture_id):
         device.quilt.tiling_dimension_y * tileHeight * device.window.h
     )
     quiltViewPortion = (
-        1.0, -1.0
+        1.0, 1.0
     )
+    if flip:
+        quiltViewPortion = (
+            1.0, -1.0
+        )
     glUniform2fv(glGetUniformLocation(quilt_shader, "viewPortion"), 1, quiltViewPortion)
     glUniform1i(glGetUniformLocation(quilt_shader, "overscan"), 0)
     glUniform1i(glGetUniformLocation(quilt_shader, "quiltInvert"), 0)
@@ -151,7 +155,7 @@ def render_image(lent):
 def render_quilt(quilt):
     try:
         texture_id = gl_utils.load_texture_from_cv_image(quilt)
-        _render_pass_quilt(texture_id)
+        _render_pass_quilt(texture_id, flip=True)
         # _render_pass_quilt_old_webgl_shader(texture_id)
         glDeleteTextures(1, [texture_id])
         # lent = _generate_lenticular_projection(quilt)
@@ -160,13 +164,25 @@ def render_quilt(quilt):
     except KeyboardInterrupt:
         exit(0)
 
+rgbd_target_texture_id = gl_utils.create_texture(device.window.w, device.window.h)
+rgbd_target = gl_utils.create_framebuffer(rgbd_target_texture_id)
+
+quilt_resw = int(device.window.w / device.quilt.tiling_dimension_x)
+quilt_resh = int(device.window.h / device.quilt.tiling_dimension_y)
+
 def render_rgb_depth(rgb, depth):
-    glClear(GL_COLOR_BUFFER_BIT)
+    rgb = cv2.resize(rgb, (quilt_resw, quilt_resh))
+    depth = cv2.resize(depth, (quilt_resw, quilt_resh))
+
     try:
+        glBindFramebuffer(GL_FRAMEBUFFER, rgbd_target)
+        glViewport(0, 0, device.window.w, device.window.h)
+
         rgb_tex_id = gl_utils.load_texture_from_cv_image(rgb)
         #TODO use GL_R32F
         depth_tex_id = gl_utils.load_texture_from_cv_image(depth)
 
+        offset_scale = 0.3
         tilecount = device.quilt.tiling_dimension_x * device.quilt.tiling_dimension_y
         quilt_widthp = 1.0 / device.quilt.tiling_dimension_x
         quilt_heightp = 1.0 / device.quilt.tiling_dimension_y 
@@ -175,14 +191,14 @@ def render_rgb_depth(rgb, depth):
             for qx in range(device.quilt.tiling_dimension_x):
                 xx = qx / device.quilt.tiling_dimension_x
                 yy = qy / device.quilt.tiling_dimension_y
-                xywh = (xx, yy, quilt_widthp, quilt_heightp)
+                xywh = (xx, 1.0 - yy - quilt_heightp, quilt_widthp, quilt_heightp)
                 hoffset = (i / tilecount) - 0.5
-                displace.render(rgb_tex_id, depth_tex_id, xywh, hoffset)
+                displace.render(rgb_tex_id, depth_tex_id, xywh, hoffset * offset_scale)
                 i += 1
 
         glDeleteTextures(2, [rgb_tex_id, depth_tex_id])
+        glBindFramebuffer(GL_FRAMEBUFFER, 0)
 
-        glfw.swap_buffers(window)
-        glfw.poll_events()
+        _render_pass_quilt(rgbd_target_texture_id, flip=False)
     except KeyboardInterrupt:
         exit(0)

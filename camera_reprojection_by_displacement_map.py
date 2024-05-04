@@ -29,8 +29,10 @@ def render(rgb_tex_id, depth_tex_id, xywh, horizontal_offset):
 
     glActiveTexture(GL_TEXTURE0)
     glBindTexture(GL_TEXTURE_2D, rgb_tex_id)
+    glUniform1i(glGetUniformLocation(disp_shader, "u_rgb"), 0)
     glActiveTexture(GL_TEXTURE1)
     glBindTexture(GL_TEXTURE_2D, depth_tex_id)
+    glUniform1i(glGetUniformLocation(disp_shader, "u_depth"), 1)
     # glBindVertexArray(quad_VAO)
     glBindVertexArray(disp_VAO)
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
