@@ -1,3 +1,4 @@
+import camera_reprojection_by_displacement_map as displace
 from OpenGL.GL import *
 import bridge_api
 import gl_utils
@@ -14,37 +15,38 @@ if device.info.device_type != "portrait":
 if not glfw.init():
     raise Exception("Failed to initialize GLFW")
 
-def terminate():
+def _terminate():
     glfw.terminate()
 
-atexit.register(terminate)
+atexit.register(_terminate)
 
 window_title = 'rendering_python_api'
 
-def create_window():
+def _create_window():
     glfw.window_hint(glfw.DECORATED, glfw.FALSE)
     window = glfw.create_window(device.window.w, device.window.h, window_title, None, None)
-    glfw.set_window_pos(window, device.window.x, device.window.y)
+    # glfw.set_window_pos(window, device.window.x, device.window.y)
     if not window:
         glfw.terminate()
         raise Exception("Failed to create GLFW window")
     return window
 
-window = create_window()
+window = _create_window()
 glfw.make_context_current(window)
 
+displace.init()
 quad_VAO = gl_utils.setup_quad_vertices()
-quad_shader = gl_utils.create_shader_program(open('quad_texture_vert.glsl', 'r').read(), open('quad_texture_frag.glsl', 'r').read())
+quad_shader = gl_utils.create_shader_program(open('shaders/quad_texture_vert.glsl', 'r').read(), open('shaders/quad_texture_frag.glsl', 'r').read())
 quilt_VAO = gl_utils.setup_quilt_vertices()
 quilt_shader_old = 0
-# quilt_shader_old = gl_utils.create_shader_program(open('look_old_vert.glsl', 'r').read(), open('look_old_frag.glsl', 'r').read())
+# quilt_shader_old = gl_utils.create_shader_program(open('shaders/look_old_vert.glsl', 'r').read(), open('shaders/look_old_frag.glsl', 'r').read())
 
 vert = "#version 330 core\n" + device.shader.vertex_shader
 frag = "#version 330 core\n" + device.shader.fragment_shader
 quilt_shader = gl_utils.create_shader_program(vert, frag)
 
 
-def render_pass_quilt_old_webgl_shader(texture_id):
+def _render_pass_quilt_old_webgl_shader(texture_id):
     glClear(GL_COLOR_BUFFER_BIT)
     glUseProgram(quilt_shader_old)
 
@@ -79,7 +81,7 @@ def render_pass_quilt_old_webgl_shader(texture_id):
     glfw.poll_events()
 
 
-def render_pass_quilt(texture_id):
+def _render_pass_quilt(texture_id):
     glClear(GL_COLOR_BUFFER_BIT)
     glUseProgram(quilt_shader)
 
@@ -126,9 +128,7 @@ def render_pass_quilt(texture_id):
     glfw.swap_buffers(window)
     glfw.poll_events()
 
-
-
-def render_pass_quad(texture_id):
+def _render_pass_quad(texture_id):
     glClear(GL_COLOR_BUFFER_BIT)
 
     glUseProgram(quad_shader)
@@ -140,35 +140,22 @@ def render_pass_quad(texture_id):
     glfw.swap_buffers(window)
     glfw.poll_events()
 
-
-
-def _generate_lenticular_projection(quilt):
-    lent = 0
-    return lent
-
-def _generate_quilt_from_rgbd(rgb_depth):
-    # quilt_image_count
-    quilt = 0
-    return quilt
-
-
-
-def show_image(lent):
+def render_image(lent):
     try:
         texture_id = gl_utils.load_texture_from_cv_image(lent)
-        render_pass_quad(texture_id)
+        _render_pass_quad(texture_id)
         glDeleteTextures(1, [texture_id])
     except KeyboardInterrupt:
         exit(0)
 
-def show_quilt(quilt):
+def render_quilt(quilt):
     try:
         # Vertically flip the image
         quilt = cv2.flip(quilt, 0)
 
         texture_id = gl_utils.load_texture_from_cv_image(quilt)
-        render_pass_quilt(texture_id)
-        # render_pass_quilt_old_webgl_shader(texture_id)
+        _render_pass_quilt(texture_id)
+        # _render_pass_quilt_old_webgl_shader(texture_id)
         glDeleteTextures(1, [texture_id])
         # lent = _generate_lenticular_projection(quilt)
         # show_lenticular_projection(lent)
@@ -176,7 +163,11 @@ def show_quilt(quilt):
     except KeyboardInterrupt:
         exit(0)
 
-def show_rgb_depth(rgb_depth):
+def render_rgb_depth(rgb, depth):
+    #so loop all the cameras
+        # render to a section of the render target
+    # displace.render(glfw, frame, depth)
+    render_image(rgb)
     # try:
     #     quilt = _generate_quilt_from_rgbd(rgb_depth)
     #     show_quilt(quilt)
