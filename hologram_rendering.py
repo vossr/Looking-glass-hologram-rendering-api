@@ -25,7 +25,7 @@ window_title = 'rendering_python_api'
 def _create_window():
     glfw.window_hint(glfw.DECORATED, glfw.FALSE)
     window = glfw.create_window(device.window.w, device.window.h, window_title, None, None)
-    # glfw.set_window_pos(window, device.window.x, device.window.y)
+    glfw.set_window_pos(window, device.window.x, device.window.y)
     if not window:
         glfw.terminate()
         raise Exception("Failed to create GLFW window")
