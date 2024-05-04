@@ -161,14 +161,24 @@ def render_quilt(quilt):
         exit(0)
 
 def render_rgb_depth(rgb, depth):
+    glClear(GL_COLOR_BUFFER_BIT)
     try:
         rgb_tex_id = gl_utils.load_texture_from_cv_image(rgb)
         #TODO use GL_R32F
         depth_tex_id = gl_utils.load_texture_from_cv_image(depth)
 
-        #so loop all the cameras
-            # render to a section of the render target
-        displace.render(rgb_tex_id, depth_tex_id)
+        tilecount = device.quilt.tiling_dimension_x * device.quilt.tiling_dimension_y
+        quilt_widthp = 1.0 / device.quilt.tiling_dimension_x
+        quilt_heightp = 1.0 / device.quilt.tiling_dimension_y 
+        i = 0
+        for qy in range(device.quilt.tiling_dimension_y):
+            for qx in range(device.quilt.tiling_dimension_x):
+                xx = qx / device.quilt.tiling_dimension_x
+                yy = qy / device.quilt.tiling_dimension_y
+                xywh = (xx, yy, quilt_widthp, quilt_heightp)
+                hoffset = (i / tilecount) - 0.5
+                displace.render(rgb_tex_id, depth_tex_id, xywh, hoffset)
+                i += 1
 
         glDeleteTextures(2, [rgb_tex_id, depth_tex_id])
 
