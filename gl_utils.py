@@ -83,6 +83,29 @@ def setup_quad_vertices():
     glEnableVertexAttribArray(1)
     return VAO
 
+def setup_displace_vertices():
+    vertices = np.array([
+        # Positions   # Texture Coords
+        -1.0, -1.0,   0.0, 0.0,
+         1.0, -1.0,   1.0, 0.0,
+        -1.0,  1.0,   0.0, 1.0,
+         1.0,  1.0,   1.0, 1.0 
+    ], dtype=np.float32)
+
+    VAO = glGenVertexArrays(1)
+    glBindVertexArray(VAO)
+
+    VBO = glGenBuffers(1)
+    glBindBuffer(GL_ARRAY_BUFFER, VBO)
+    glBufferData(GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW)
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * vertices.itemsize, None)
+    glEnableVertexAttribArray(0)
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * vertices.itemsize, ctypes.c_void_p(2 * vertices.itemsize))
+    glEnableVertexAttribArray(1)
+    return VAO
+
 def setup_quilt_vertices():
     vertices = np.array([
         -1.0, -1.0,  # Bottom left
