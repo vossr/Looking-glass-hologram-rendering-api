@@ -63,10 +63,10 @@ def load_texture_from_cv_image(cv_image):
 def setup_quad_vertices():
     vertices = np.array([
         # Positions   # Texture Coords
-        -1.0, -1.0,   0.0, 0.0,  # Bottom left
-         1.0, -1.0,   1.0, 0.0,  # Bottom right
-        -1.0,  1.0,   0.0, 1.0,  # Top left
-         1.0,  1.0,   1.0, 1.0   # Top right
+        -1.0, -1.0,   0.0, 1.0,
+         1.0, -1.0,   1.0, 1.0,
+        -1.0,  1.0,   0.0, 0.0,
+         1.0,  1.0,   1.0, 0.0 
     ], dtype=np.float32)
 
     VAO = glGenVertexArrays(1)
@@ -101,3 +101,48 @@ def setup_quilt_vertices():
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * vertices.itemsize, None)
     glEnableVertexAttribArray(0)
     return VAO
+
+def create_grid_vao(width, height):
+    vertices = []
+    uvs = []
+    
+    for y in range(height):
+        for x in range(width):
+            # Coordinates normalized between -1 and 1
+            x0 = x / width * 2 - 1
+            x1 = (x + 1) / width * 2 - 1
+            y0 = y / height * 2 - 1
+            y1 = (y + 1) / height * 2 - 1
+            
+            quad_vertices = [
+                x0, y0, 0, x1, y0, 0, x1, y1, 0,
+                x0, y0, 0, x1, y1, 0, x0, y1, 0
+            ]
+            vertices.extend(quad_vertices)
+            
+            quad_uvs = [
+                0, 0, 1, 0, 1, 1,
+                0, 0, 1, 1, 0, 1
+            ]
+            uvs.extend(quad_uvs)
+    
+    vertices = np.array(vertices, dtype=np.float32)
+    uvs = np.array(uvs, dtype=np.float32)
+    
+    vao = glGenVertexArrays(1)
+    glBindVertexArray(vao)
+    
+    vertex_vbo = glGenBuffers(1)
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_vbo)
+    glBufferData(GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
+    glEnableVertexAttribArray(0)
+    
+    uv_vbo = glGenBuffers(1)
+    glBindBuffer(GL_ARRAY_BUFFER, uv_vbo)
+    glBufferData(GL_ARRAY_BUFFER, uvs.nbytes, uvs, GL_STATIC_DRAW)
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, None)
+    glEnableVertexAttribArray(1)
+    
+    glBindVertexArray(0)
+    return vao, vertex_vbo, uv_vbo

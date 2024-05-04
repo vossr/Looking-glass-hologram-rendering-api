@@ -112,7 +112,7 @@ def _render_pass_quilt(texture_id):
         device.quilt.tiling_dimension_y * tileHeight * device.window.h
     )
     quiltViewPortion = (
-        1.0, 1.0
+        1.0, -1.0
     )
     glUniform2fv(glGetUniformLocation(quilt_shader, "viewPortion"), 1, quiltViewPortion)
     glUniform1i(glGetUniformLocation(quilt_shader, "overscan"), 0)
@@ -150,9 +150,6 @@ def render_image(lent):
 
 def render_quilt(quilt):
     try:
-        # Vertically flip the image
-        quilt = cv2.flip(quilt, 0)
-
         texture_id = gl_utils.load_texture_from_cv_image(quilt)
         _render_pass_quilt(texture_id)
         # _render_pass_quilt_old_webgl_shader(texture_id)
@@ -164,13 +161,18 @@ def render_quilt(quilt):
         exit(0)
 
 def render_rgb_depth(rgb, depth):
-    #so loop all the cameras
-        # render to a section of the render target
-    # displace.render(glfw, frame, depth)
-    render_image(rgb)
-    # try:
-    #     quilt = _generate_quilt_from_rgbd(rgb_depth)
-    #     show_quilt(quilt)
-    # except KeyboardInterrupt:
-    #     exit(0)
-    pass
+    try:
+        rgb_tex_id = gl_utils.load_texture_from_cv_image(rgb)
+        #TODO use GL_R32F
+        depth_tex_id = gl_utils.load_texture_from_cv_image(depth)
+
+        #so loop all the cameras
+            # render to a section of the render target
+        displace.render(rgb_tex_id, depth_tex_id)
+
+        glDeleteTextures(2, [rgb_tex_id, depth_tex_id])
+
+        glfw.swap_buffers(window)
+        glfw.poll_events()
+    except KeyboardInterrupt:
+        exit(0)

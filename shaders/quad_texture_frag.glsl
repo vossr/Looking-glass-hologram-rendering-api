@@ -5,6 +5,6 @@ in vec2 TexCoord;
 uniform sampler2D ourTexture;
 
 void main() {
-    vec2 flippedTexCoord = vec2(TexCoord.x, 1.0 - TexCoord.y);
+    vec2 flippedTexCoord = vec2(TexCoord.x, TexCoord.y);
     FragColor = texture(ourTexture, flippedTexCoord);
 }
