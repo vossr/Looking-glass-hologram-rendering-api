@@ -29,6 +29,9 @@ def render(rgb_tex_id, depth_tex_id, xywh, horizontal_offset, yrot):
     # glUniformMatrix4fv(glGetUniformLocation(disp_shader, "orthoMatrix"), 1, GL_FALSE, ortho_matrix)
     glUniform4fv(glGetUniformLocation(disp_shader, "u_offset"), 1, xywh)
     glUniform1f(glGetUniformLocation(disp_shader, "u_horizontalOffset"), horizontal_offset)
+
+    #TODO: the rotation causes overdraw
+    # i guess its missing perspective projection, so rotating doesnt make sense
     glUniform1f(glGetUniformLocation(disp_shader, "u_yrot"), yrot)
 
     glActiveTexture(GL_TEXTURE0)

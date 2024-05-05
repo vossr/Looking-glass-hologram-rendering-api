@@ -1,4 +1,9 @@
-This abstracts the device api and lenticular rendering, so you can write a quilt or rgbd renderer and call this to show the hologram on the device.
+
+<img src="img/stealth.gif" width="500" height="auto"/>  
+<img src="img/flat.gif" width="300" height="auto"/>
+
+This abstracts the device api and lenticular rendering, so user can write a quilt renderer to show the hologram on the device.
+Also implemented basic rgbd to quilt renderer.
 
 # Usage
 ```bash
@@ -27,6 +32,8 @@ rot_max_rad radians
 hologram_rendering.render_rgb_depth(rgb, depth, offset_scale, rot_max_rad):
 ```
 
+<br>
+
 ## Horizontal camera reprojection methods
 - The main issue is of course missing color data behind near geometry
 
@@ -50,6 +57,7 @@ hologram_rendering.render_rgb_depth(rgb, depth, offset_scale, rot_max_rad):
     - https://github.com/HypoX64/Deep3D
     - [comma.ai has one](https://youtu.be/EqQNZXqzFSI?t=322) for dashcam video
 
+<br>
 
 ## Some other ideas i had
 
@@ -63,3 +71,8 @@ maybe with mesh shaders, render to all quilts with single pass
 irl facecam that object tracks tracks eyes, so can render only needed views.  
 for heavy raytracing or something
 
+
+<br>
+<br>
+
+LICENSE: CC0
