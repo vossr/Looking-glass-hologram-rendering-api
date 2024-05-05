@@ -1,6 +1,7 @@
-
-<img src="img/stealth.gif" width="500" height="auto"/>  
+<p float="left">
+<img src="img/stealth.gif" width="500" height="auto"/>
 <img src="img/flat.gif" width="300" height="auto"/>
+</p>
 
 This abstracts the device api and lenticular rendering, so user can write a quilt renderer to show the hologram on the device.
 Also implemented basic rgbd to quilt renderer.
@@ -35,7 +36,7 @@ hologram_rendering.render_rgb_depth(rgb, depth, offset_scale, rot_max_rad):
 <br>
 
 ## Horizontal camera reprojection methods
-- The main issue is of course missing color data behind near geometry
+- The main issue is of course missing color data behind nearby geometry
 
 - Vertex grid textured heightmap
     - Similar to [jbienz refract](https://solersoft.github.io/Refract/)
