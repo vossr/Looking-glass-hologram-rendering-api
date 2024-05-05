@@ -5,6 +5,9 @@ import gl_utils
 import atexit
 import glfw
 import cv2
+import os
+
+install_dir = os.path.dirname(os.path.abspath(__file__))
 
 device = bridge_api.get_device(0)
 if device.info.bridge_core_version != "0.1.1":
@@ -36,10 +39,10 @@ glfw.make_context_current(window)
 
 displace.init()
 quad_VAO = gl_utils.setup_quad_vertices()
-quad_shader = gl_utils.create_shader_program(open('shaders/quad_texture_vert.glsl', 'r').read(), open('shaders/quad_texture_frag.glsl', 'r').read())
+quad_shader = gl_utils.create_shader_program(open(install_dir + '/shaders/quad_texture_vert.glsl', 'r').read(), open(install_dir + '/shaders/quad_texture_frag.glsl', 'r').read())
 quilt_VAO = gl_utils.setup_quilt_vertices()
 quilt_shader_old = 0
-# quilt_shader_old = gl_utils.create_shader_program(open('shaders/look_old_vert.glsl', 'r').read(), open('shaders/look_old_frag.glsl', 'r').read())
+# quilt_shader_old = gl_utils.create_shader_program(open(install_dir + '/shaders/look_old_vert.glsl', 'r').read(), open(install_dir + '/shaders/look_old_frag.glsl', 'r').read())
 
 vert = "#version 330 core\n" + device.shader.vertex_shader
 frag = "#version 330 core\n" + device.shader.fragment_shader
@@ -93,9 +96,9 @@ def _render_pass_quilt(texture_id, flip=False):
     glUniform1f(glGetUniformLocation(quilt_shader, "displayAspect"), device.window.aspect_ratio)
 
     #why this in wrong order h / w
-    glUniform1f(glGetUniformLocation(quilt_shader, "quiltAspect"), device.quilt.tiling_dimension_y / device.quilt.tiling_dimension_x)
+    # glUniform1f(glGetUniformLocation(quilt_shader, "quiltAspect"), device.quilt.tiling_dimension_y / device.quilt.tiling_dimension_x)
     # glUniform1f(glGetUniformLocation(quilt_shader, "quiltAspect"), device.quilt.tiling_dimension_x / device.quilt.tiling_dimension_y)
-    # glUniform1f(glGetUniformLocation(quilt_shader, "quiltAspect"), 1.0)
+    glUniform1f(glGetUniformLocation(quilt_shader, "quiltAspect"), 1.0)
 
     glUniform1i(glGetUniformLocation(quilt_shader, "ri"), device.shader.red_index)
     glUniform1i(glGetUniformLocation(quilt_shader, "bi"), device.shader.blue_index)
@@ -115,11 +118,9 @@ def _render_pass_quilt(texture_id, flip=False):
         1.0, 1.0
     )
     if flip:
-        quiltViewPortion = (
-            1.0, -1.0
-        )
+        quiltViewPortion[1] = quiltViewPortion[1] * -1.0
     glUniform2fv(glGetUniformLocation(quilt_shader, "viewPortion"), 1, quiltViewPortion)
-    glUniform1i(glGetUniformLocation(quilt_shader, "overscan"), 0)
+    glUniform1i(glGetUniformLocation(quilt_shader, "overscan"), 1)
     glUniform1i(glGetUniformLocation(quilt_shader, "quiltInvert"), 0)
     glUniform1i(glGetUniformLocation(quilt_shader, "debug"), 0)
 
@@ -169,10 +170,29 @@ rgbd_target = gl_utils.create_framebuffer(rgbd_target_texture_id)
 
 quilt_resw = int(device.window.w / device.quilt.tiling_dimension_x)
 quilt_resh = int(device.window.h / device.quilt.tiling_dimension_y)
+if quilt_resw % 2 != 0:
+    quilt_resw += 1
+if quilt_resh % 2 != 0:
+    quilt_resh += 1
+maxw = quilt_resw * 2
+maxh = quilt_resh * 2
 
+def crop_image_if_larger(img, maxw, maxh):
+    height, width = img.shape[:2]
+    
+    if width > maxw or height > maxh:
+        ratio_w = maxw / width
+        ratio_h = maxh / height
+        ratio = min(ratio_w, ratio_h)
+        new_width = int(width * ratio)
+        new_height = int(height * ratio)
+        resized_img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
+        return resized_img
+    return img
+  
 def render_rgb_depth(rgb, depth):
-    rgb = cv2.resize(rgb, (quilt_resw, quilt_resh))
     depth = cv2.resize(depth, (quilt_resw, quilt_resh))
+    rgb = crop_image_if_larger(rgb, maxw, maxh)
 
     try:
         glBindFramebuffer(GL_FRAMEBUFFER, rgbd_target)
@@ -196,7 +216,8 @@ def render_rgb_depth(rgb, depth):
                 displace.render(rgb_tex_id, depth_tex_id, xywh, hoffset * offset_scale)
                 i += 1
 
-        glDeleteTextures(2, [rgb_tex_id, depth_tex_id])
+        glDeleteTextures(1, [rgb_tex_id])
+        glDeleteTextures(1, [depth_tex_id])
         glBindFramebuffer(GL_FRAMEBUFFER, 0)
 
         _render_pass_quilt(rgbd_target_texture_id, flip=False)

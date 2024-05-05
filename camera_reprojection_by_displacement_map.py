@@ -1,6 +1,9 @@
 from OpenGL.GL import *
 import numpy as np
 import gl_utils
+import os
+
+install_dir = os.path.dirname(os.path.abspath(__file__))
 
 quad_VAO = 0
 quad_shader = 0
@@ -13,9 +16,9 @@ def init():
     global disp_VAO
     global disp_shader
     # quad_VAO = gl_utils.setup_quad_vertices()
-    # quad_shader = gl_utils.create_shader_program(open('shaders/quad_texture_vert.glsl', 'r').read(), open('shaders/quad_texture_frag.glsl', 'r').read())
+    # quad_shader = gl_utils.create_shader_program(open(install_dir + '/shaders/quad_texture_vert.glsl', 'r').read(), open(install_dir + '/shaders/quad_texture_frag.glsl', 'r').read())
     disp_VAO = gl_utils.setup_displace_vertices()
-    disp_shader = gl_utils.create_shader_program(open('shaders/displace_vert.glsl', 'r').read(), open('shaders/displace_frag.glsl', 'r').read())
+    disp_shader = gl_utils.create_shader_program(open(install_dir + '/shaders/displace_vert.glsl', 'r').read(), open(install_dir + '/shaders/displace_frag.glsl', 'r').read())
 
 
 def render(rgb_tex_id, depth_tex_id, xywh, horizontal_offset):
