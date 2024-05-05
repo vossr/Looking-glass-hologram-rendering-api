@@ -190,7 +190,11 @@ def crop_image_if_larger(img, maxw, maxh):
         return resized_img
     return img
   
-def render_rgb_depth(rgb, depth):
+def clamp(value, min_value, max_value):
+    return max(min_value, min(value, max_value))
+
+def render_rgb_depth(rgb, depth, offset_scale, rot_max_rad):
+    offset_scale = clamp(offset_scale, 0, 1)
     depth = cv2.resize(depth, (quilt_resw, quilt_resh))
     rgb = crop_image_if_larger(rgb, maxw, maxh)
 
@@ -202,7 +206,6 @@ def render_rgb_depth(rgb, depth):
         #TODO use GL_R32F
         depth_tex_id = gl_utils.load_texture_from_cv_image(depth)
 
-        offset_scale = 0.3
         tilecount = device.quilt.tiling_dimension_x * device.quilt.tiling_dimension_y
         quilt_widthp = 1.0 / device.quilt.tiling_dimension_x
         quilt_heightp = 1.0 / device.quilt.tiling_dimension_y 
@@ -213,7 +216,7 @@ def render_rgb_depth(rgb, depth):
                 yy = qy / device.quilt.tiling_dimension_y
                 xywh = (xx, 1.0 - yy - quilt_heightp, quilt_widthp, quilt_heightp)
                 hoffset = (i / tilecount) - 0.5
-                displace.render(rgb_tex_id, depth_tex_id, xywh, hoffset * offset_scale)
+                displace.render(rgb_tex_id, depth_tex_id, xywh, hoffset * offset_scale, hoffset * rot_max_rad)
                 i += 1
 
         glDeleteTextures(1, [rgb_tex_id])

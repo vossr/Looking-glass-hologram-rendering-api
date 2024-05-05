@@ -21,7 +21,7 @@ def init():
     disp_shader = gl_utils.create_shader_program(open(install_dir + '/shaders/displace_vert.glsl', 'r').read(), open(install_dir + '/shaders/displace_frag.glsl', 'r').read())
 
 
-def render(rgb_tex_id, depth_tex_id, xywh, horizontal_offset):
+def render(rgb_tex_id, depth_tex_id, xywh, horizontal_offset, yrot):
 
     # glUseProgram(quad_shader)
     glUseProgram(disp_shader)
@@ -29,6 +29,7 @@ def render(rgb_tex_id, depth_tex_id, xywh, horizontal_offset):
     # glUniformMatrix4fv(glGetUniformLocation(disp_shader, "orthoMatrix"), 1, GL_FALSE, ortho_matrix)
     glUniform4fv(glGetUniformLocation(disp_shader, "u_offset"), 1, xywh)
     glUniform1f(glGetUniformLocation(disp_shader, "u_horizontalOffset"), horizontal_offset)
+    glUniform1f(glGetUniformLocation(disp_shader, "u_yrot"), yrot)
 
     glActiveTexture(GL_TEXTURE0)
     glBindTexture(GL_TEXTURE_2D, rgb_tex_id)
