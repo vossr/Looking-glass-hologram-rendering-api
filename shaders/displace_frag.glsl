@@ -13,7 +13,7 @@ void main()
     // texture2D(texture, p + (texture2D(map, p).rb) * amp);
 
     vec2 displacedTexCoord = TexCoord + vec2(depth * u_horizontalOffset, 0.0);
-    // displacedTexCoord = clamp(displacedTexCoord, vec2(0.0, 0.0), vec2(1.0, 1.0));
+    displacedTexCoord = clamp(displacedTexCoord, vec2(0.0, 0.0), vec2(1.0, 1.0));
 
     FragColor = texture(u_rgb, displacedTexCoord);
 }

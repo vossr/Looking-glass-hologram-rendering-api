@@ -118,7 +118,7 @@ def _render_pass_quilt(texture_id, flip=False):
         1.0, 1.0
     )
     if flip:
-        quiltViewPortion[1] = quiltViewPortion[1] * -1.0
+        quiltViewPortion = (quiltViewPortion[0], quiltViewPortion[1] * -1.0)
     glUniform2fv(glGetUniformLocation(quilt_shader, "viewPortion"), 1, quiltViewPortion)
     glUniform1i(glGetUniformLocation(quilt_shader, "overscan"), 1)
     glUniform1i(glGetUniformLocation(quilt_shader, "quiltInvert"), 0)
@@ -194,7 +194,6 @@ def clamp(value, min_value, max_value):
     return max(min_value, min(value, max_value))
 
 def render_rgb_depth(rgb, depth, offset_scale, rot_max_rad):
-    offset_scale = clamp(offset_scale, 0, 1)
     depth = cv2.resize(depth, (quilt_resw, quilt_resh))
     rgb = crop_image_if_larger(rgb, maxw, maxh)
 
