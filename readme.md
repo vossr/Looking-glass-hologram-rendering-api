@@ -36,8 +36,17 @@ hologram_rendering.render_rgb_depth(rgb, depth, offset_scale, rot_max_rad):
 <br>
 
 ## Horizontal camera reprojection methods
-- The main issue is of course missing color data behind nearby geometry
-
+##### After depth estimation
+##### The main issue is of course missing color data behind nearby geometry
+- Displacement map + infill:
+    - Track optical flow history for infill
+    - Infill [Adobe PatchMatch](https://www.youtube.com/watch?v=8KGqD8voAkI)
+    - [Owl3D](https://www.owl3d.com/) unknown deep learning temporal method
+    - So goal temporally stable real-time [video inpainting](https://paperswithcode.com/task/video-inpainting)
+    - https://huggingface.co/stabilityai/stable-diffusion-2-inpainting
+- Deep learning end to end:
+    - [comma.ai has one](https://youtu.be/EqQNZXqzFSI?t=322), small offset simulator for dashcam video
+    - https://github.com/HypoX64/Deep3D
 - Vertex grid textured heightmap
     - Similar to [jbienz refract](https://solersoft.github.io/Refract/)
     - Stretches the pixels
@@ -51,13 +60,6 @@ hologram_rendering.render_rgb_depth(rgb, depth, offset_scale, rot_max_rad):
     - Similar to rgb depth [looking glass studio](https://lookingglassfactory.com/looking-glass-studio)
     - Similar to [Facebook 3D photos](https://techcrunch.com/2018/06/07/how-facebooks-new-3d-photos-work/)
     - Facebook uses CNN to hallucinate missing data
-    - Maybe try filling missing data with adobe patchmatch
-    - Fill methods probably not temporally stable
-- Owl3D unknown temporal method
-- Deep learning:
-    - https://github.com/HypoX64/Deep3D
-    - [comma.ai has one](https://youtu.be/EqQNZXqzFSI?t=322) for dashcam video
-
 <br>
 
 ## Some other ideas i had
